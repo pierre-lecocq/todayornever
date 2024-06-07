@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ .Title }}</title>
+
+    <link rel="icon" href="/static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="/static/todayornever.css" />
+  </head>
+  <body>
+    <div id="feedback"></div>
+
+    <div id="container">
+      <header>
+        <form class="flex-row"
+              hx-post="/create"
+              hx-trigger="submit"
+              hx-swap="none"
+              hx-on::after-request="this.reset()">
+          <input type="text" name="title" placeholder="Create a new task..." class="flex-expand-cell" />
+          <button type="submit" class="icon primary-button dim-on-hover"><i class="fa-solid fa-plus"></i></button>
+        </form>
+      </header>
+
+      <div hx-get="/tasks" hx-trigger="load, reload-tasks from:body" hx-swap="innerHTML"></div>
+    </div>
+
+    <script src="/static/todayornever.js"></script>
+  </body>
+</html>

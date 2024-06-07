@@ -1,0 +1,74 @@
+<ul id="tasks">
+  {{ range .Tasks }}
+  <li class="flex-row">
+
+    <!-- State switch -->
+    <form hx-post="/update" hx-trigger="submit" hx-swap="none">
+      <input type="hidden" name="id" value="{{ .ID }}" />
+      {{ if eq .State "done"}}
+      <input type="hidden" name="state" value="todo" />
+      {{ else }}
+      <input type="hidden" name="state" value="done" />
+      {{ end }}
+      <button class="icon outline-primary-button" title="Mark as done">
+        {{ if eq .State "done"}}
+        <i class="fa-solid fa-circle" title="Mark as todo"></i>
+        {{ else }}
+        <i class="fa-regular fa-circle"></i>
+        {{ end }}
+      </button>
+    </form>
+
+    <!-- Title -->
+    <div class="title flex-expand-cell {{ .State }} dblclick-edit">
+      <span title="Double click to edit">{{ .Title }}</span>
+      <dialog>
+        <h1>Edit task</h1>
+        <form method="dialog" hx-post="/update" hx-trigger="submit" hx-swap="none" hx-on::after-request="this.reset()" class="flex-row">
+          <input type="hidden" name="id" value="{{ .ID }}" />
+          <input type="text" name="title" class="flex-expand-cell" value="{{ .Title }}" />
+          <button type="submit" class="icon primary-button dim-on-hover"><i class="fa-solid fa-save"></i></button>
+        </form>
+      </dialog>
+    </div>
+
+    <!-- Refresh -->
+    {{ if eq .Overdue true }}
+    <form hx-post="/refresh" hx-trigger="submit" hx-swap="none" class="show-on-hover">
+      <input type="hidden" name="id" value="{{ .ID }}" />
+      <button class="icon secondary-button" title="Refresh due date">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </button>
+    </form>
+    {{ end }}
+
+    <!-- Delete -->
+    <form hx-post="/delete" hx-trigger="submit" hx-swap="none" hx-confirm="Are you sure you want to delete this task?" class="show-on-hover">
+      <input type="hidden" name="id" value="{{ .ID }}" />
+      <button class="icon secondary-button" title="Delete task">
+        <i class="fa-regular fa-trash-can"></i>
+      </button>
+    </form>
+
+    {{ if eq .Overdue true }}
+    <div class="overdue">Overdue</div>
+    {{ end }}
+
+  </li>
+  {{ end }}
+</ul>
+
+<script>
+ var dblclickEdits = document.getElementsByClassName('dblclick-edit');
+
+ for (let i = 0; i < dblclickEdits.length; i++) {
+   let display = dblclickEdits[i].getElementsByTagName('span')[0];
+   let dialog = dblclickEdits[i].getElementsByTagName('dialog')[0];
+
+   display.addEventListener('dblclick', function (e) {
+     if (!dialog.open) {
+       dialog.showModal();
+     }
+   });
+ }
+</script>

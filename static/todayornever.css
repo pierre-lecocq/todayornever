@@ -1,0 +1,176 @@
+/* Colors */
+
+:root {
+    --bg-color: #ffffff;
+    --text-color: #444444;
+    --primary-bg-color: #2787ea;
+    --primary-text-color: #ffffff;
+    --input-border-color: #cccccc;
+    --list-hover-color: #fafafa;
+}
+
+/* Reset */
+
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: Helvetica, sans-serif;
+    line-height: 1.15;
+    color: var(--text-color);
+    background: var(--bg-color);
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style: none;
+}
+
+button, input, select, textarea {
+	  font-size: 100%;
+	  line-height: 1.5;
+	  margin: 0;
+}
+
+/* Generics */
+
+.flex-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.flex-expand-cell {
+    flex-grow: 2;
+}
+
+button.icon {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+button.icon.primary-button {
+    background: var(--primary-bg-color);
+    color: var(--primary-text-color);
+    padding: 5px 12px;
+}
+
+button.icon.outline-primary-button {
+    color: var(--primary-bg-color);
+}
+
+button.icon.secondary-button {
+    background: none;
+    color: var(--text-color);
+}
+
+.dim-on-hover:hover {
+    filter: brightness(120%);
+}
+
+input[type="text"] {
+    border: 1px solid var(--input-border-color);
+    padding: 5px 10px;
+}
+
+
+input[type="text"]:focus {
+    outline: none !important;
+    border: 1px solid var(--primary-bg-color);
+}
+
+/* Feedback */
+
+#feedback {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 20px 30px;
+    background: var(--primary-bg-color);
+    color: var(--primary-text-color);
+    display: none;
+}
+
+/* Container */
+
+#container {
+    width: 960px;
+    margin: 100px auto;
+}
+
+/* Header */
+
+#container header form {
+    font-size: 120%;
+}
+
+/* Tasks */
+
+#tasks {
+    margin: 20px 0;
+}
+
+#tasks li {
+    padding: 20px;
+}
+
+#tasks li:hover {
+    background: var(--list-hover-color);
+}
+
+#tasks li .show-on-hover {
+    visibility: hidden;
+}
+
+#tasks li:hover .show-on-hover {
+    visibility: visible;
+    padding-left: 10px;
+}
+
+#tasks li div.title {
+    cursor: pointer;
+}
+
+#tasks li div.title span {
+    display: block;
+}
+
+#tasks li div.title.done span {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
+#tasks li form button {
+    cursor: pointer;
+}
+
+#tasks li div.overdue {
+    text-transform: uppercase;
+    font-size: 80%;
+    font-weight: bold;
+    color: #aaa;
+    padding-left: 10px;
+}
+
+/* Dialog */
+
+#tasks dialog {
+    margin: auto;
+    padding: 20px;
+    border: 5px solid var(--input-border-color);
+    min-width: 480px;
+    cursor: default;
+}
+
+#tasks dialog h1 {
+    font-weight: normal;
+}
+
+#tasks dialog form {
+    margin-top: 20px;
+}
