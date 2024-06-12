@@ -104,7 +104,7 @@ input[type="text"]:focus {
 
 #container {
     width: 960px;
-    margin: 100px auto;
+    margin: 50px auto;
 }
 
 /* Header */
@@ -186,4 +186,50 @@ input[type="text"]:focus {
 
 #tasks dialog form {
     margin-top: 20px;
+}
+
+/* Media queries */
+
+@media screen and (max-width: 600px) {
+    #container {
+        width: 100%;
+        margin: 5px auto;
+    }
+
+    #container header form {
+        padding: 5px;
+    }
+
+    #tasks {
+        margin: 5px 0;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    #container {
+        width: 100%;
+        margin: 5px auto;
+    }
+
+    #container header form {
+        padding: 5px;
+    }
+
+    #tasks {
+        margin: 5px 0;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    #container {
+        width: 758px;
+        margin: 20px auto;
+    }
+}
+
+@media screen and (min-width: 980px) {
+    #container {
+        width: 960px;
+        margin: 50px auto;
+    }
 }
