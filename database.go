@@ -1,6 +1,6 @@
 // File: database.go
 // Creation: Fri May 24 07:41:56 2024
-// Time-stamp: <2024-06-12 09:46:49>
+// Time-stamp: <2024-06-12 11:47:39>
 // Copyright (C): 2024 Pierre Lecocq
 
 package main
@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -53,7 +54,22 @@ func NewDatabase(filename string) *Database {
 
 func CreateDatabaseFile(filename string) (string, bool) {
 	created := false
-	root := os.Getenv("HOME") + "/Library/Application Support/todayornever" // @see https://github.com/shibukawa/configdir
+
+	var root string
+
+	switch goos := runtime.GOOS; goos {
+	case "windows":
+		root = filepath.Join(os.Getenv("APPDATA"), "todayornever")
+	case "darwin":
+		root = filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "todayornever")
+	default:
+		// assuming goos.IsLinux
+		if os.Getenv("XDG_CONFIG_HOME") != "" {
+			root = filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "todayornever")
+		} else {
+			root = filepath.Join(os.Getenv("HOME"), ".config", "todayornever")
+		}
+	}
 
 	if _, err := os.Stat(root); os.IsNotExist(err) {
 		os.MkdirAll(root, os.ModePerm)
