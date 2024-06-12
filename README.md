@@ -12,17 +12,17 @@ Simply organize your daily tasks, and focus on what you can actually do today!
 
 ![Screenshot](./screenshot.png)
 
----
-
-## Development
-
-### Stack
-
-Built with [Golang](https://go.dev/), [HTMx](https://htmx.org/) and [SQLite](https://sqlite.org/).
-
-### Compile and run
+## Compile and run
 
 ```
 make
 make run
 ```
+
+## Use it!
+
+Open [http://localhost:8080](http://localhost:8080/) in your browser.
+
+## Stack
+
+Built with [Golang](https://go.dev/), [HTMx](https://htmx.org/) and [SQLite](https://sqlite.org/).

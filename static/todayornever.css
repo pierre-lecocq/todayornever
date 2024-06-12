@@ -73,6 +73,10 @@ button.icon.secondary-button {
     filter: brightness(120%);
 }
 
+.emphasize-on-hover:hover {
+    filter: brightness(80%);
+}
+
 input[type="text"] {
     border: 1px solid var(--input-border-color);
     padding: 5px 10px;
@@ -119,6 +123,10 @@ input[type="text"]:focus {
     padding: 20px;
 }
 
+#tasks li.drop-hover {
+    border-top: 2px solid var(--primary-bg-color);
+}
+
 #tasks li:hover {
     background: var(--list-hover-color);
 }
@@ -130,6 +138,11 @@ input[type="text"]:focus {
 #tasks li:hover .show-on-hover {
     visibility: visible;
     padding-left: 10px;
+}
+
+#tasks li div.grip {
+    color: var(--input-border-color);
+    cursor: move;
 }
 
 #tasks li div.title {

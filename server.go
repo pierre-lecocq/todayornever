@@ -1,6 +1,6 @@
 // File: server.go
 // Creation: Wed May 29 16:35:29 2024
-// Time-stamp: <2024-06-07 14:50:42>
+// Time-stamp: <2024-06-11 14:22:06>
 // Copyright (C): 2024 Pierre Lecocq
 
 package main
@@ -50,6 +50,46 @@ func deleteHandler(w http.ResponseWriter, r *http.Request, db *Database) {
 
 	w.Header().Set("HX-Trigger", "reload-tasks")
 	f = Feedback{Type: "success", Message: "Task deleted successfully"}
+	template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
+}
+
+func reorderHandler(w http.ResponseWriter, r *http.Request, db *Database) {
+	var f Feedback
+
+	err := r.ParseForm()
+
+	if err != nil {
+		f = Feedback{Type: "error", Message: "Invalid form data"}
+		template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
+		return
+	}
+
+	id1, err := strconv.Atoi(r.Form.Get("id1"))
+
+	if err != nil || id1 <= 0 {
+		f = Feedback{Type: "error", Message: "Invalid ID1"}
+		template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
+		return
+	}
+
+	id2, err := strconv.Atoi(r.Form.Get("id2"))
+
+	if err != nil || id2 <= 0 {
+		f = Feedback{Type: "error", Message: "Invalid ID2"}
+		template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
+		return
+	}
+
+	err = db.ReorderTasks(int64(id1), int64(id2))
+
+	if err != nil {
+		f = Feedback{Type: "error", Message: "Error"}
+		template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
+		return
+	}
+
+	w.Header().Set("HX-Trigger", "reload-tasks")
+	f = Feedback{Type: "success", Message: "Task reordered successfully"}
 	template.Must(template.ParseFiles("templates/_feedback.html")).Execute(w, f)
 }
 
@@ -232,6 +272,10 @@ func StartServer(port int, db *Database) {
 	// Routes
 	r.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 		deleteHandler(w, r, db)
+	}).Methods("POST")
+
+	r.HandleFunc("/reorder", func(w http.ResponseWriter, r *http.Request) {
+		reorderHandler(w, r, db)
 	}).Methods("POST")
 
 	r.HandleFunc("/refresh", func(w http.ResponseWriter, r *http.Request) {

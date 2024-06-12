@@ -1,6 +1,6 @@
 // File: database.go
 // Creation: Fri May 24 07:41:56 2024
-// Time-stamp: <2024-06-07 14:51:06>
+// Time-stamp: <2024-06-12 09:46:49>
 // Copyright (C): 2024 Pierre Lecocq
 
 package main
@@ -28,6 +28,7 @@ type Task struct {
 	DueAt     *time.Time `sql:"due_at"`
 	CreatedAt *time.Time `sql:"created_at"`
 	UpdatedAt *time.Time `sql:"updated_at"`
+	Position  int64      `sql:"position"`
 	Overdue   bool       `sql:"-"`
 }
 
@@ -83,6 +84,7 @@ CREATE TABLE IF NOT EXISTS task (
     due_at TIMESTAMP DEFAULT (datetime('now', '+1 day', 'start of day')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    position INTEGER,
     PRIMARY KEY(id AUTOINCREMENT)
 )`)
 	if err != nil {
@@ -120,16 +122,47 @@ func (db *Database) RefreshTaskDueDate(id int64) error {
 	return nil
 }
 
-func (db *Database) SwitchTaskState(id int64) error {
-	stmt, err := db.handler.Prepare(
-		"UPDATE task SET state = CASE state WHEN \"todo\" THEN \"done\" ELSE \"todo\" END WHERE id = ?",
-	)
+func (db *Database) ReorderTasks(id1 int64, id2 int64) error {
+	t1, err := db.FetchTask(id1)
 
-	stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	t2, err := db.FetchTask(id2)
+
+	if err != nil {
+		return err
+	}
+
+	var query string
+
+	if t1.Position > t2.Position { // Moving up
+		query = "UPDATE task SET position = position + 1 WHERE position >= ? AND position < ?"
+	} else { // Moving down
+		query = "UPDATE task SET position = position - 1 WHERE position <= ? AND position > ?"
+	}
+
+	stmt, err := db.handler.Prepare(query)
+
+	stmt.Exec(t2.Position, t1.Position)
+
 	defer stmt.Close()
 
 	if err != nil {
 		return err
+	}
+
+	stmtUpdate, errUpdate := db.handler.Prepare(
+		"UPDATE task SET position = ?  WHERE id = ?",
+	)
+
+	stmtUpdate.Exec(t2.Position, t1.ID)
+
+	defer stmtUpdate.Close()
+
+	if errUpdate != nil {
+		return errUpdate
 	}
 
 	return nil
@@ -178,9 +211,9 @@ func (db *Database) UpdateTask(t Task) error {
 }
 
 func (db *Database) CreateTask(t Task) error {
-	stmt, err := db.handler.Prepare(
-		"INSERT INTO task (title, state, due_at) VALUES (?, 'todo', datetime('now', '+1 day', 'start of day'))",
-	)
+	stmt, err := db.handler.Prepare(`
+INSERT INTO task (title, state, due_at, position)
+  SELECT ?, 'todo', datetime('now', '+1 day', 'start of day'), MAX(position) + 1 FROM task`)
 
 	stmt.Exec(t.Title)
 	defer stmt.Close()
@@ -196,7 +229,7 @@ func (db *Database) FetchTask(id int64) (Task, error) {
 	var t Task
 
 	err := db.handler.QueryRow(
-		"SELECT id, title, state, due_at, created_at, updated_at FROM task WHERE id = ?",
+		"SELECT id, title, state, due_at, created_at, updated_at, position FROM task WHERE id = ?",
 		id,
 	).Scan(
 		&t.ID,
@@ -205,6 +238,7 @@ func (db *Database) FetchTask(id int64) (Task, error) {
 		&t.DueAt,
 		&t.CreatedAt,
 		&t.UpdatedAt,
+		&t.Position,
 	)
 
 	if err != nil {
@@ -217,9 +251,10 @@ func (db *Database) FetchTask(id int64) (Task, error) {
 func (db *Database) FetchTasks() []Task {
 	var tasks []Task
 
-	rows, err := db.handler.Query(
-		"SELECT id, title, state, due_at, created_at, updated_at FROM task ORDER by due_at desc, (case state when 'todo' then 0 when 'done' then 1 end),  created_at desc",
-	)
+	rows, err := db.handler.Query(`
+    SELECT id, title, state, due_at, created_at, updated_at, position
+      FROM task
+      ORDER by (case state when 'todo' then 0 when 'done' then 1 end), position asc`)
 	defer rows.Close()
 
 	err = rows.Err()
@@ -238,6 +273,7 @@ func (db *Database) FetchTasks() []Task {
 			&t.DueAt,
 			&t.CreatedAt,
 			&t.UpdatedAt,
+			&t.Position,
 		)
 
 		if err != nil {
